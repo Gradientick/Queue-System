@@ -6,30 +6,33 @@ import java.util.Queue;
 
 public class DisplayView extends JFrame {
     private final JLabel lblNowServing = new JLabel("NOW SERVING: 000", SwingConstants.CENTER);
-    private final JTextArea txtQueue = new JTextArea();
+    private final JPanel queueListPanel = new JPanel();
 
     public DisplayView() {
         setTitle("Queue Display");
-        setSize(400, 500);
+        setSize(900, 600); // wider for multi-column layout
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout(20, 20)); // Add spacing
+        setLayout(new BorderLayout(20, 20));
+        getContentPane().setBackground(Color.WHITE);
 
-        // Top panel for "NOW SERVING"
-        lblNowServing.setFont(new Font("SansSerif", Font.BOLD, 36));
+        // === TOP: Now Serving ===
+        lblNowServing.setFont(new Font("SansSerif", Font.BOLD, 42));
         lblNowServing.setOpaque(true);
         lblNowServing.setBackground(Color.BLACK);
         lblNowServing.setForeground(Color.RED);
-        lblNowServing.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
-
-        // Center panel for queue list
-        txtQueue.setEditable(false);
-        txtQueue.setFont(new Font("Monospaced", Font.PLAIN, 20));
-        txtQueue.setBackground(new Color(245, 245, 245));
-        txtQueue.setMargin(new Insets(10, 10, 10, 10));
-
-        JScrollPane scrollPane = new JScrollPane(txtQueue);
-
+        lblNowServing.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         add(lblNowServing, BorderLayout.NORTH);
+
+        // === CENTER: Queue List in Multi-Column Grid ===
+        queueListPanel.setLayout(new GridLayout(0, 3, 30, 15)); // 3 columns
+        queueListPanel.setBackground(Color.WHITE);
+        queueListPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+
+        JScrollPane scrollPane = new JScrollPane(queueListPanel);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        scrollPane.setPreferredSize(new Dimension(800, 400));
+
         add(scrollPane, BorderLayout.CENTER);
 
         // Auto-refresh queue every 1 second
@@ -41,15 +44,33 @@ public class DisplayView extends JFrame {
     }
 
     private void refresh() {
+        queueListPanel.removeAll();
+
         int nowServing = QueueManager.getInstance().getNowServing();
         lblNowServing.setText("NOW SERVING: " + String.format("%03d", nowServing));
 
         Queue<Integer> queue = QueueManager.getInstance().getQueue();
-        StringBuilder sb = new StringBuilder("NEXT IN LINE:\n\n");
-        for (int num : queue) {
-            sb.append("Queue ").append(num).append("\n");
+        int total = queue.size();
+        int columns = 3;
+        int rows = (int) Math.ceil((double) total / columns);
+
+        Integer[] items = queue.toArray(new Integer[0]);
+
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < columns; col++) {
+                int index = col * rows + row; // Top-down, per column
+                if (index < total) {
+                    JLabel label = new JLabel("Queue " + items[index]);
+                    label.setFont(new Font("Segoe UI", Font.BOLD, 26));
+                    label.setHorizontalAlignment(SwingConstants.LEFT);
+                    queueListPanel.add(label);
+                } else {
+                    queueListPanel.add(new JLabel()); // blank for alignment
+                }
+            }
         }
 
-        txtQueue.setText(sb.toString());
+        queueListPanel.revalidate();
+        queueListPanel.repaint();
     }
 }
