@@ -13,24 +13,29 @@ public class DisplayView extends JFrame {
         setSize(900, 600); // wider for multi-column layout
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(20, 20));
-        getContentPane().setBackground(Color.WHITE);
+
+        Color backgroundColor = new Color(248, 248, 248); // soft white
+        Color headerBg = new Color(33, 33, 33);           // near black
+        Color headerText = new Color(255, 82, 82);        // soft red (not harsh)
+
+        getContentPane().setBackground(backgroundColor);
 
         // === TOP: Now Serving ===
         lblNowServing.setFont(new Font("SansSerif", Font.BOLD, 42));
         lblNowServing.setOpaque(true);
-        lblNowServing.setBackground(Color.BLACK);
-        lblNowServing.setForeground(Color.RED);
+        lblNowServing.setBackground(headerBg);
+        lblNowServing.setForeground(headerText);
         lblNowServing.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         add(lblNowServing, BorderLayout.NORTH);
 
         // === CENTER: Queue List in Multi-Column Grid ===
         queueListPanel.setLayout(new GridLayout(0, 3, 30, 15)); // 3 columns
-        queueListPanel.setBackground(Color.WHITE);
+        queueListPanel.setBackground(backgroundColor);
         queueListPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         JScrollPane scrollPane = new JScrollPane(queueListPanel);
         scrollPane.setBorder(null);
-        scrollPane.getViewport().setBackground(Color.WHITE);
+        scrollPane.getViewport().setBackground(backgroundColor);
         scrollPane.setPreferredSize(new Dimension(800, 400));
 
         add(scrollPane, BorderLayout.CENTER);
@@ -61,7 +66,8 @@ public class DisplayView extends JFrame {
                 int index = col * rows + row; // Top-down, per column
                 if (index < total) {
                     JLabel label = new JLabel("Queue " + items[index]);
-                    label.setFont(new Font("Segoe UI", Font.BOLD, 26));
+                    label.setFont(new Font("Segoe UI", Font.PLAIN, 24));
+                    label.setForeground(new Color(40, 40, 40)); // dark gray
                     label.setHorizontalAlignment(SwingConstants.LEFT);
                     queueListPanel.add(label);
                 } else {
