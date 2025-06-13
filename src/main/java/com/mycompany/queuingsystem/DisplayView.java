@@ -10,15 +10,26 @@ public class DisplayView extends JFrame {
 
     public DisplayView() {
         setTitle("Queue Display");
-        setSize(900, 600); // wider for multi-column layout
+        setSize(900, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout(20, 20));
+        setLocationRelativeTo(null);
 
-        Color backgroundColor = new Color(248, 248, 248); // soft white
-        Color headerBg = new Color(33, 33, 33);           // near black
-        Color headerText = new Color(255, 82, 82);        // soft red (not harsh)
+        // Load the background image
+        ImageIcon backgroundIcon = new ImageIcon("src/main/java/com/mycompany/queuingsystem/background.png");
 
-        getContentPane().setBackground(backgroundColor);
+        // Custom panel with background image
+        JPanel backgroundPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundIcon.getImage(), 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+        backgroundPanel.setLayout(new BorderLayout(20, 20));
+        setContentPane(backgroundPanel);
+
+        Color headerBg = new Color(33, 33, 33);
+        Color headerText = new Color(255, 82, 82);
 
         // === TOP: Now Serving ===
         lblNowServing.setFont(new Font("SansSerif", Font.BOLD, 42));
@@ -26,25 +37,24 @@ public class DisplayView extends JFrame {
         lblNowServing.setBackground(headerBg);
         lblNowServing.setForeground(headerText);
         lblNowServing.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        add(lblNowServing, BorderLayout.NORTH);
+        backgroundPanel.add(lblNowServing, BorderLayout.NORTH);
 
         // === CENTER: Queue List in Multi-Column Grid ===
-        queueListPanel.setLayout(new GridLayout(0, 3, 30, 15)); // 3 columns
-        queueListPanel.setBackground(backgroundColor);
-        queueListPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        queueListPanel.setLayout(new GridLayout(0, 3, 30, 15));
+        queueListPanel.setOpaque(false); // Transparent to see background
 
         JScrollPane scrollPane = new JScrollPane(queueListPanel);
         scrollPane.setBorder(null);
-        scrollPane.getViewport().setBackground(backgroundColor);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
         scrollPane.setPreferredSize(new Dimension(800, 400));
 
-        add(scrollPane, BorderLayout.CENTER);
+        backgroundPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Auto-refresh queue every 1 second
+        // Timer to refresh queue
         Timer timer = new Timer(1000, e -> refresh());
         timer.start();
 
-        setLocationRelativeTo(null); // Center window
         setVisible(true);
     }
 
@@ -63,15 +73,15 @@ public class DisplayView extends JFrame {
 
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < columns; col++) {
-                int index = col * rows + row; // Top-down, per column
+                int index = col * rows + row;
                 if (index < total) {
                     JLabel label = new JLabel("Queue " + items[index]);
                     label.setFont(new Font("Segoe UI", Font.PLAIN, 24));
-                    label.setForeground(new Color(40, 40, 40)); // dark gray
+                    label.setForeground(new Color(40, 40, 40));
                     label.setHorizontalAlignment(SwingConstants.LEFT);
                     queueListPanel.add(label);
                 } else {
-                    queueListPanel.add(new JLabel()); // blank for alignment
+                    queueListPanel.add(new JLabel());
                 }
             }
         }
